@@ -1,53 +1,44 @@
 import express from "express";
+import { deleteBook, insertBook, selectBook, selectBooks, updateBook } from "../db.js";
 
 const app = express();
 app.use(express.json());
 
-const livros = [
-    {
-        id: 1, 
-        titulo: "O Senhor dos Anéis"
-    },
-    {
-        id: 2,
-        titulo: "O Hobbit"
-    }
-]
+
+// function buscaLivro(id) {
+//     return livros.findIndex(livro => {
+//         return livro.id == Number(id);
+//     })
+// }
 
 
-function buscaLivro(id) {
-    return livros.findIndex(livro => {
-        return livro.id == Number(id);
-    })
-}
-app.get("/", (req, res) => {
-    res.status(200).send("Curso de node.js");
-})
+// app.get("/", (req, res) => {
+//     res.status(200).send("Curso de node.js");
+// })
 
-app.get("/livros", (req, res) => {
+app.get("/livros", async(req, res) => {
+    const livros = await selectBooks();
     res.status(200).json(livros);
 })
 
-app.get("/livros/:id", (req, res) => {
-    const index = buscaLivro(req.params.id);
-    res.status(200).json(livros[index]);
+app.get("/livro/:id", async(req, res) => {
+    const livro = await selectBook(req.params.id);
+    res.status(200).json(livro);
 })
 
-app.post("/livros", (req, res) => {
-    livros.push(req.body);
-    res.status(201).send("Livro cadastrado com sucesso!");
+app.post("/livros", async(req, res) => {
+    await insertBook(req.body);
+    res.sendStatus(201);
 })
 
-app.put("/livros/:id", (req, res) => {
-    const index = buscaLivro(req.params.id);
-    livros[index].titulo = req.body.titulo;
-    res.status(200).json(livros);
+app.put("/livro/:id", async(req, res) => {
+    await updateBook(req.params.id, req.body);
+    res.sendStatus(200);
 })
 
-app.delete("/livros/:id", (req, res) => {
-    const index = buscaLivro(req.params.id);
-    livros.splice(index, 1);
-    res.status(200).send("Livro removido com sucesso!");
+app.delete("/livro/:id", async(req, res) => {
+    await deleteBook(req.params.id);
+    res.sendStatus(200);
 })
 
 export default app;
